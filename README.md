@@ -1,4 +1,4 @@
-# einstein-picasso-odyssei-OFFICIAL
+# Picasso Protocol v1
 this is official einstein-picasso-odyssei project repo
 
 
