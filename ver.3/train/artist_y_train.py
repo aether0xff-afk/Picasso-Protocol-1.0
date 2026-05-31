@@ -1,65 +1,17 @@
+from pathlib import Path
+import sys
+
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
-from transformers import BertModel, BertLMHeadModel, BertTokenizer
-from tqdm import tqdm
 import warnings
 
-# We need to import the ArtistX class to load its structure and weights
-from artist_x_train import ArtistX 
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from picasso_protocol.models import ArtistX, ArtistY  # noqa: E402
 
 warnings.filterwarnings("ignore")
-
-# --- 1. Model Definition (ArtistY) ---
-class ArtistY(nn.Module):
-    """
-    ArtistY: Inherits X's encoder but uses its own decoder
-    to reinterpret the latent vector into new, creative text.
-    """
-    def __init__(self, model_name='bert-base-uncased'):
-        super().__init__()
-        self.tokenizer = BertTokenizer.from_pretrained(model_name, local_files_only=True)
-        
-        # Encoder: Same structure as X's. Will be overwritten with trained weights.
-        self.encoder = BertModel.from_pretrained(model_name, local_files_only=True)
-        
-        # Decoder: A new, separate decoder for creative generation.
-        self.decoder = BertLMHeadModel.from_pretrained(model_name, is_decoder=True, local_files_only=True)
-
-    def load_encoder_from_x(self, x_model: ArtistX):
-        """
-        Loads the trained encoder weights from an ArtistX instance.
-        """
-        # Get the state dictionary from X's encoder
-        encoder_weights = x_model.encoder.state_dict()
-        # Load the weights into Y's encoder
-        self.encoder.load_state_dict(encoder_weights)
-        print("✅ Y has successfully inherited X's encoding ability.")
-
-    def reinterpret(self, text: str, max_new_tokens=30) -> str:
-        """
-        User-friendly function to reinterpret text.
-        """
-        self.eval() # Set the model to evaluation mode
-        with torch.no_grad(): # Disable gradient calculation
-            # 1. Encode the input text using the inherited X-encoder
-            inputs = self.tokenizer(text, return_tensors='pt').to(self.encoder.device)
-            latent_vector = self.encoder(inputs['input_ids'], attention_mask=inputs['attention_mask']).last_hidden_state
-            
-            # 2. Use Y's own decoder to generate new text from the latent vector
-            # The .generate() method is ideal for creative text generation
-            outputs = self.decoder.generate(
-                inputs_embeds=latent_vector,
-                max_new_tokens=max_new_tokens,
-                do_sample=True, # Use sampling for more creative and less repetitive results
-                top_k=50,
-                top_p=0.95,
-                pad_token_id=self.tokenizer.pad_token_id
-            )
-            
-            # Decode the generated token IDs into text
-            new_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            return new_text
 
 # --- 2. Conceptual Training Block for Y ---
 def train_artist_y_conceptual():
@@ -73,7 +25,7 @@ def train_artist_y_conceptual():
 
     # 1. First, load the fully trained ArtistX model
     print("1. Loading the trained ArtistX model...")
-    model_X = ArtistX()
+    model_X = ArtistX(local_files_only=True)
     # Ensure you have the 'artist_x_best_model.pth' file from training X
     model_X.load_state_dict(torch.load("artist_x_best_model.pth"))
     model_X.to(DEVICE)
@@ -82,7 +34,7 @@ def train_artist_y_conceptual():
 
     # 2. Create an instance of ArtistY and load the encoder from X
     print("2. Preparing ArtistY...")
-    model_Y = ArtistY().to(DEVICE)
+    model_Y = ArtistY(local_files_only=True).to(DEVICE)
     model_Y.load_encoder_from_x(model_X)
     
     # 3. CRITICAL: Freeze the encoder's weights. We only want to train the decoder.

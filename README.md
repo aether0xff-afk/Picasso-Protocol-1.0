@@ -1,244 +1,302 @@
 # Picasso Protocol v1
 
-피카소 프로토콜(Picasso Protocol)은 **파블로 피카소의 입체파 미학**에서 영감을 받은 비대칭 스테가노그래피(텍스트 → 이미지 → 텍스트) 시스템입니다. 프로젝트의 핵심은 **하나의 인코더 + 두 개의 디코더** 구조로, 동일한 텍스트를 **보안 복원용(Artist X)** 또는 **창의적 재해석용(Artist Y)** 결과로 분기해내는 데 있습니다. 이 저장소는 연구/시연용 모델 스크립트, 데스크톱 GUI, 그리고 웹 데모(Flask + HTML)를 함께 제공합니다.
+피카소 프로토콜은 텍스트를 PNG 이미지에 숨기고, 다시 텍스트로 복원하거나 재해석하는 프로젝트입니다.
 
----
+- `Artist X`: 원문 복원용
+- `Artist Y`: 재해석용
+- 제공 형태: 웹 데모(`toWebPage/`), 데스크톱 GUI(`ver.3/`), 학습 스크립트(`ver.3/train/`)
 
-## ✨ 주요 개념 요약
+이 README는 개념 설명보다 실제 실행 방법에 집중합니다.
 
-- **공유 인코더(Encoder)**: 텍스트를 잠재 벡터(latent vector)로 변환합니다.
-- **Artist X (Private / 복원용)**: 잠재 벡터를 원문 텍스트로 최대한 정확히 복원합니다.
-- **Artist Y (Public / 재해석용)**: 동일한 잠재 벡터를 새로운 텍스트로 창의적으로 재해석합니다.
-- **이미지 기반 스테가노그래피**: 잠재 벡터와 원문 길이 정보를 RGBA PNG 픽셀 데이터에 **바이트 단위로 숨겨** 전송합니다.
+## 빠른 시작
 
----
+가장 빨리 써보는 방법은 아래 순서입니다.
 
-## 📦 레포 구조
+1. Python 가상환경을 만듭니다.
+2. 필요한 패키지를 설치합니다.
+3. `artist_x_best_model.pth`, `artist_y_standalone.pth`를 준비합니다.
+4. 두 모델 파일을 `toWebPage/` 폴더에 넣습니다.
+5. `toWebPage/`로 이동한 뒤 `python server.py`로 서버를 실행합니다.
+6. `toWebPage/index.html`을 브라우저에서 엽니다.
 
-```
-Picasso-Protocol-1.0/
-├─ README.md
-├─ toWebPage/
-│  ├─ index.html          # 웹 데모 UI (Tailwind 기반)
-│  └─ server.py           # Flask API 서버 (encode/decode)
-├─ ver.3/
-│  ├─ app_x.py             # Artist X 데스크톱 GUI
-│  ├─ app_y.py             # Artist Y 데스크톱 GUI
-│  └─ train/
-│     ├─ artist_x_train.py # Artist X 학습 스크립트
-│     ├─ artist_y_train.py # Artist Y 학습 개념 스크립트
-│     ├─ download_models.py# Hugging Face 모델 다운로드
-│     ├─ image_utils.py    # PNG 인코딩/디코딩 유틸리티
-│     └─ y_bundler.py       # X 인코더를 Y에 포함해 단일 모델 생성
-├─ LICENSE
-└─ (이미지/문서 파일들)
-```
+## 1. 모델 학습 / 모델 파일 준비
 
----
-
-## ✅ 요구사항
-
-### 공통
-- **Python 3.11+**
-- **PyTorch 2.7.1**
-- **Transformers 4.54.0**
-- **Datasets 4.0.0**
-- **Pillow 11.2.1**
-- **NumPy 2.3.1**
-- **Matplotlib 3.10.3**
-- **Tkinter** (GUI 실행 시 필요)
-
-### 설치 예시 (pip)
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install torch==2.7.1 transformers==4.54.0 datasets==4.0.0 pillow==11.2.1 numpy==2.3.1 matplotlib==3.10.3 flask flask-cors
-```
-
-> ⚠️ 환경에 따라 PyTorch 설치 방식이 다를 수 있습니다. GPU 사용 시에는 CUDA 버전에 맞는 설치 명령을 사용하세요.
-
----
-
-## 🚀 웹 데모 실행 (Flask + HTML)
-
-### 1) 모델 파일 준비
-웹 서버는 다음 모델 파일을 **`toWebPage/` 폴더 안**에서 로드합니다.
+이 프로젝트는 결국 아래 두 모델 파일이 있어야 제대로 쓸 수 있습니다.
 
 - `artist_x_best_model.pth`
 - `artist_y_standalone.pth`
 
-모델 파일은 아래 링크에서 받을 수 있습니다:
-- **Model Data**: https://drive.google.com/drive/folders/1p2EyQxCJMCiGHDhB0LjuIHfLjvf5jvvE?usp=sharing
+### 이미 학습된 모델을 받아서 바로 쓰는 경우
 
-> 파일을 `toWebPage/` 안에 직접 넣어주세요.
+현재 저장소에는 모델 파일이 포함되어 있지 않습니다.
 
-### 2) 서버 실행
+다운로드 링크:
+
+- [Model Data](https://drive.google.com/drive/folders/1p2EyQxCJMCiGHDhB0LjuIHfLjvf5jvvE?usp=sharing)
+
+받은 뒤 웹 데모를 쓸 경우 두 파일을 `toWebPage/` 안에 넣으면 됩니다.
+
+### 직접 학습해서 모델을 만드는 경우
+
+순서는 아래와 같습니다.
+
+1. `ver.3/train/download_models.py`로 BERT 기본 모델 캐시
+2. `ver.3/train/artist_x_train.py`로 X 학습
+3. `ver.3/train/y_bundler.py`로 Y 독립 모델 생성
+
+실행 예시:
+
+```powershell
+cd ver.3\train
+python download_models.py
+python artist_x_train.py
+python y_bundler.py
+```
+
+생성 결과:
+
+- `artist_x_best_model.pth`
+- `artist_y_standalone.pth`
+
+중요:
+
+- `artist_x_train.py`는 `wikitext-2-raw-v1`로 X를 학습합니다.
+- `y_bundler.py`는 X의 인코더를 Y에 복사해 단일 모델 파일을 만듭니다.
+- [`ver.3/train/artist_y_train.py`](./ver.3/train/artist_y_train.py)는 아직 개념 설명에 가깝습니다.
+- 그래서 현재 구조에서는 X는 학습 가능하지만, Y는 "품질 좋은 창의적 재해석 모델"까지 완전히 학습되는 상태는 아닙니다.
+
+### 웹 데모용 모델 배치 위치
+
+`server.py`는 현재 작업 디렉터리 기준으로 모델을 읽습니다. 따라서 웹 데모를 쓸 때는 두 파일을 반드시 `toWebPage/` 안에 둬야 합니다.
+
+```text
+toWebPage/
+├─ server.py
+├─ index.html
+├─ artist_x_best_model.pth
+└─ artist_y_standalone.pth
+```
+
+### 데스크톱 GUI용 모델 배치 위치
+
+GUI에서는 실행 후 파일 선택 창이 뜨므로, 모델 파일이 꼭 `ver.3/` 안에 있을 필요는 없습니다. 다만 찾기 쉽게 한 폴더에 두는 것을 권장합니다.
+
+## 2. 준비물
+
+### 공통 요구사항
+
+- Python 3.11 이상
+- pip
+- 인터넷 연결
+  - 처음 실행 시 Hugging Face의 `bert-base-uncased` 관련 파일을 받을 수 있습니다.
+- Tkinter
+  - 데스크톱 GUI를 쓸 경우 필요합니다.
+
+### 권장 설치
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install torch==2.7.1 transformers==4.54.0 datasets==4.0.0 pillow==11.2.1 numpy==2.3.1 matplotlib==3.10.3 flask flask-cors tqdm
+```
+
+macOS / Linux:
+
 ```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install torch==2.7.1 transformers==4.54.0 datasets==4.0.0 pillow==11.2.1 numpy==2.3.1 matplotlib==3.10.3 flask flask-cors tqdm
+```
+
+주의:
+
+- GPU 환경이면 PyTorch는 CUDA 버전에 맞게 별도 설치하는 편이 안전합니다.
+- `requirements.txt`는 없어서 현재는 수동 설치가 필요합니다.
+
+## 3. 웹 데모 사용법
+
+웹 데모가 가장 간단합니다.
+
+### 1) 서버 실행
+
+```powershell
 cd toWebPage
 python server.py
 ```
 
-서버가 실행되면 다음과 같은 로그가 출력됩니다:
-```
+정상 실행되면 콘솔에 아래와 비슷한 로그가 나옵니다.
+
+```text
 서버 시작 중... 모델을 불러옵니다.
-✅ 모델 로딩 완료. (Device: cpu 또는 cuda)
+✅ 모델 로딩 완료. (Device: cpu)
 ```
 
-### 3) 웹 UI 열기
-`toWebPage/index.html` 파일을 브라우저로 직접 열면 됩니다.
+기본 주소는 `http://127.0.0.1:5000`입니다.
 
-웹 UI에서 제공하는 기능:
-- **모드 선택**: Artist X / Artist Y
-- **텍스트 → 이미지 인코딩**
-- **이미지 → 텍스트 디코딩**
-- 결과 PNG 다운로드
+### 2) 웹 화면 열기
 
----
+아래 파일을 브라우저에서 직접 엽니다.
 
-## 🧩 Flask API 요약
+- [`toWebPage/index.html`](./toWebPage/index.html)
 
-### POST `/encode`
-텍스트를 이미지(베이스64 PNG)로 변환합니다.
+또는 파일 탐색기에서 `toWebPage/index.html`을 더블클릭해도 됩니다.
 
-**Request JSON**
-```json
-{ "text": "비밀 메시지", "mode": "x" }
-```
+### 3) 사용 흐름
 
-- `mode`: `x` 또는 `y` (기본값 `y`)
+1. 모드를 고릅니다.
+   - `Artist Y`: 공개용, 디코딩 시 재해석 결과
+   - `Artist X`: 개인용, 디코딩 시 원문 복원 결과
+2. 텍스트를 입력합니다.
+3. `PNG 이미지 생성`을 누릅니다.
+4. 생성된 이미지를 저장합니다.
+5. 다시 PNG를 업로드하면 텍스트가 복원되거나 재해석됩니다.
 
-**Response JSON**
-```json
-{ "image": "<base64>" }
-```
+### 4) 웹 데모에서 자주 막히는 부분
 
-### POST `/decode`
-이미지(베이스64 PNG)를 텍스트로 복원합니다.
+- 서버를 안 켜고 `index.html`만 열면 동작하지 않습니다.
+- 모델 파일이 `toWebPage/` 안에 없으면 서버가 시작되지 않습니다.
+- `index.html`은 `http://127.0.0.1:5000`으로 요청을 보내므로, 서버 포트를 바꾸면 프론트도 같이 수정해야 합니다.
 
-**Request JSON**
-```json
-{ "image": "<base64>", "mode": "x" }
-```
+## 4. 데스크톱 GUI 사용법
 
-**Response JSON**
-```json
-{ "text": "복원 결과" }
-```
+웹 대신 로컬 GUI로도 사용할 수 있습니다.
 
----
+### Artist X 실행
 
-## 🖥 데스크톱 GUI 실행 (Artist X / Y)
-
-### Artist X (복원용)
-```bash
+```powershell
 cd ver.3
 python app_x.py
 ```
 
-기능:
-1. **모델 불러오기** (`artist_x_best_model.pth` 선택)
-2. 텍스트 → PNG 이미지 생성
-3. PNG → 텍스트 복원
+실행 후 순서:
 
-### Artist Y (재해석용)
-```bash
+1. `Artist X 모델 불러오기 (.pth)` 클릭
+2. `artist_x_best_model.pth` 선택
+3. 텍스트를 입력하고 `텍스트 → PNG 이미지` 실행
+4. 또는 PNG 파일을 열어 `PNG 이미지 → 텍스트` 실행
+
+### Artist Y 실행
+
+```powershell
 cd ver.3
 python app_y.py
 ```
 
-기능:
-1. **모델 불러오기** (`artist_y_standalone.pth` 선택)
-2. 텍스트 → PNG 이미지 생성
-3. PNG → 텍스트 재해석
+실행 후 순서:
 
-> ✅ GUI는 내부적으로 **same encoder + different decoder** 구조를 사용합니다.
+1. `Artist Y 모델 불러오기 (.pth)` 클릭
+2. `artist_y_standalone.pth` 선택
+3. 텍스트를 입력하고 `텍스트 → PNG 이미지` 실행
+4. 또는 PNG 파일을 열어 `PNG 이미지 → 텍스트 재해석` 실행
 
----
+### GUI를 쓸 때 알아둘 점
 
-## 🧠 모델 학습 흐름 (ver.3/train)
+- GUI는 모델 파일 경로를 직접 선택하는 방식입니다.
+- X는 복원용, Y는 생성형 재해석용이라 같은 PNG라도 결과가 다를 수 있습니다.
+- Tkinter가 없는 환경에서는 GUI가 뜨지 않습니다.
 
-### 1) 사전 모델 다운로드 (오프라인 캐시용)
-```bash
-cd ver.3/train
-python download_models.py
+## 5. API로 직접 쓰는 방법
+
+서버를 실행한 뒤 `POST /encode`, `POST /decode`를 호출할 수 있습니다.
+
+### `POST /encode`
+
+요청:
+
+```json
+{
+  "text": "비밀 메시지",
+  "mode": "x"
+}
 ```
-- Hugging Face에서 `bert-base-uncased` 모델과 토크나이저를 내려받아 로컬 캐시에 저장합니다.
-- 이후 학습 및 실행을 **오프라인**으로 진행할 수 있습니다.
 
-### 2) Artist X 학습
-```bash
-python artist_x_train.py
+- `mode`: `x` 또는 `y`
+- 응답: base64 PNG 문자열
+
+응답 예시:
+
+```json
+{
+  "image": "<base64 png>"
+}
 ```
-- 데이터셋: `wikitext-2-raw-v1`
-- 목적: **원문 복원용 디코더** 학습
-- 출력: `artist_x_best_model.pth`
 
-### 3) Artist Y 구성 (X의 인코더 복사)
-```bash
-python y_bundler.py
+### `POST /decode`
+
+요청:
+
+```json
+{
+  "image": "<base64 png>",
+  "mode": "x"
+}
 ```
-- Artist X의 인코더를 Artist Y에 이식
-- 출력: `artist_y_standalone.pth`
 
-### 4) Artist Y 학습 (개념 스크립트)
-`artist_y_train.py`는 **개념적 구조**만 제공하며, 실제 학습을 위해서는
-창의적 재해석 데이터셋(원문 → 새 텍스트 페어)이 필요합니다.
+응답 예시:
 
----
+```json
+{
+  "text": "복원 결과"
+}
+```
 
-## 🔍 PNG 인코딩 방식 요약
+### 간단한 호출 예시
 
-1. 텍스트 → BERT 인코더 → 잠재 벡터 (float32)
-2. 잠재 벡터 + 원문 길이를 바이트 스트림으로 결합
-3. 1280×1280 RGBA PNG 픽셀 배열에 바이트 그대로 삽입
-4. 중앙에는 **픽اسو 스타일 추상화 시각화**를 생성해 시각적 커버를 제공
-5. 복원 시 이미지에서 바이트 추출 → 텐서 재구성 → 디코더 실행
+```bash
+curl -X POST http://127.0.0.1:5000/encode \
+  -H "Content-Type: application/json" \
+  -d "{\"text\":\"secret message\",\"mode\":\"x\"}"
+```
 
----
+## 6. 폴더별 용도
 
-## 📚 참고 문헌
+```text
+toWebPage/
+  웹 데모 UI와 Flask 서버
 
-- RFNNS: Robust Fixed Neural Network Steganography with Popular Deep Generative Models  
-  https://arxiv.org/pdf/2505.04116
-- BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding  
-  https://arxiv.org/abs/1810.04805
+ver.3/
+  Artist X, Artist Y 데스크톱 GUI
 
----
+ver.3/train/
+  X 학습, Y 개념 학습, 모델 다운로드, Y 번들링 스크립트
+```
 
-## 📂 데이터셋
+## 7. 문제 해결
 
-- Wikitext-2 (raw): https://huggingface.co/datasets/Salesforce/wikitext/viewer/wikitext-2-raw-v1
+### `artist_x_best_model.pth` 또는 `artist_y_standalone.pth`를 찾을 수 없다고 나올 때
 
----
+- 웹 서버: 두 파일이 `toWebPage/` 안에 있는지 확인
+- GUI: 파일 선택 창에서 올바른 `.pth` 파일을 선택했는지 확인
 
-## 📝 라이선스
+### Hugging Face 관련 다운로드 오류가 날 때
 
-이 프로젝트는 `LICENSE` 파일에 명시된 조건을 따릅니다.
+- 인터넷 연결 확인
+- 사내망/프록시 환경이면 Hugging Face 접속 가능 여부 확인
+- 먼저 `python ver.3/train/download_models.py`로 기본 모델 캐시 시도
 
----
+### GUI가 실행되지 않을 때
 
-## 🙌 기여 안내
+- Python에 Tkinter가 포함되어 있는지 확인
+- Linux는 별도 패키지 설치가 필요할 수 있음
 
-- 이슈/PR 환영합니다.
-- 학습용 창의적 데이터셋이나 보안성 검증 관련 실험 결과를 공유해주시면 큰 도움이 됩니다.
+### 웹 화면은 열리는데 버튼이 실패할 때
 
----
+- `server.py`가 실행 중인지 확인
+- 브라우저 개발자 도구에서 `127.0.0.1:5000` 요청 실패 여부 확인
 
-## ✅ 빠른 실행 체크리스트
+## 8. 참고
 
-- [ ] `artist_x_best_model.pth` / `artist_y_standalone.pth` 확보
-- [ ] `toWebPage/`에 모델 파일 배치
-- [ ] `python toWebPage/server.py` 실행
-- [ ] `toWebPage/index.html` 열어 데모 확인
+- 라이선스: [LICENSE](./LICENSE)
+- 데이터셋: [Wikitext-2 (raw)](https://huggingface.co/datasets/Salesforce/wikitext/viewer/wikitext-2-raw-v1)
 
----
+## 한 줄 요약
 
-## ⚠️ 주의 사항
+바로 써보려면:
 
-- **모델 파일이 없으면 서버가 실행되지 않습니다.**
-- 실행 환경에 따라 **GPU/CPU 성능 차이가 큽니다.**
-- `artist_y_train.py`는 실제 학습 로직이 아닌 **개념 흐름**을 설명합니다.
-
----
-
-즐거운 실험과 창작을 바랍니다! 🎨
+1. 패키지 설치
+2. 모델 2개 다운로드
+3. `toWebPage/`에 모델 복사
+4. `cd toWebPage` 후 `python server.py`
+5. `toWebPage/index.html` 열기
