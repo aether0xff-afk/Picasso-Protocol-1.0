@@ -52,18 +52,18 @@
                 </div>
 
                 <div id="encoder-section" class="mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">2. 메시지 인코딩 (텍스트 → 이미지)</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-3">2. 메시지 인코딩 (텍스트 → 잠재 표현)</h2>
                     <textarea id="text-input" class="w-full h-24 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="여기에 비밀 메시지를 입력하세요..."></textarea>
                     <button id="encode-btn" class="w-full mt-3 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 btn">
-                        PNG 이미지 생성
+                        Latent JSON 생성
                     </button>
                 </div>
 
                 <div id="decoder-section" class="flex-grow flex flex-col">
-                    <h2 class="text-xl font-bold text-gray-800 mb-3">3. 메시지 디코딩 (이미지 → 텍스트)</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-3">3. 메시지 디코딩 (잠재 표현 → 텍스트)</h2>
                     <div id="drop-zone" class="drop-zone flex-grow flex flex-col items-center justify-center p-6 rounded-lg text-center cursor-pointer">
-                        <p class="text-gray-500">여기에 PNG 파일을 드래그 앤 드롭하거나<br>클릭하여 업로드하세요.</p>
-                        <input type="file" id="file-input" class="hidden" accept="image/png">
+                        <p class="text-gray-500">여기에 latent JSON 파일을 드래그 앤 드롭하거나<br>클릭하여 업로드하세요.</p>
+                        <input type="file" id="file-input" class="hidden" accept="application/json,.json">
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
                 </div>
                 <div class="mt-4 flex justify-end">
                     <a id="download-link" class="hidden bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 active:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 btn">
-                        이미지 다운로드
+                        Latent JSON 다운로드
                     </a>
                 </div>
                 <div class="mt-6">
@@ -99,16 +99,16 @@
             <div class="p-8 overflow-y-auto space-y-8">
                 <section>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">📜 프로젝트 개요</h3>
-                    <p class="text-gray-700">본 프로젝트는 파블로 피카소의 입체파에서 영감을 받아, 현대의 비대칭 암호화 원리를 신경망 기술과 융합한 새로운 스테가노그래피 시스템, '피카소 프로토콜'을 제안하고 구현합니다. 이 시스템은 Artist X (개인키)와 Artist Y (공개키)라는 두 개의 비대칭적 AI 모델을 통해, 텍스트 정보를 예술적 추상 이미지 안에 완벽히 숨기고 복원합니다.</p>
+                    <p class="text-gray-700">본 프로젝트는 파블로 피카소의 입체파에서 영감을 받아, 비대칭 암호화의 역할 분리에서 착안한 신경망 기반 프로토타입입니다. 공개된 Artist Y Encoder는 텍스트를 잠재 표현으로 변환하고, 수신자만 보유한 Artist X Decoder는 잠재 표현을 원문으로 복원합니다. 현재 단계에서는 PNG 이미지 대신 latent JSON을 사용합니다.</p>
                 </section>
                 <section>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">🛠️ 시스템 아키텍처</h3>
-                    <p class="text-gray-700 mb-4">시스템의 핵심은 동일한 인코더를 공유하지만, 서로 다른 디코더를 가진 비대칭적 구조입니다.</p>
+                    <p class="text-gray-700 mb-4">시스템의 핵심은 공개 인코더와 비공개 디코더를 서로 다른 역할로 배포하는 구조입니다.</p>
                     <div class="bg-gray-50 p-4 rounded-lg border">
                         <ul class="space-y-2">
-                            <li><strong class="text-blue-600">공유 인코더:</strong> 텍스트를 고유한 '잠재 벡터'(이미지의 본질)로 변환합니다.</li>
-                            <li><strong class="text-red-600">X의 디코더 (비밀):</strong> 잠재 벡터를 원본 텍스트로 완벽하게 복원합니다.</li>
-                            <li><strong class="text-green-600">Y의 디코더 (공개):</strong> 잠재 벡터를 새로운 텍스트로 창의적으로 재해석합니다.</li>
+                            <li><strong class="text-green-600">Artist Y Encoder (공개):</strong> 텍스트를 고차원 잠재 표현으로 변환합니다.</li>
+                            <li><strong class="text-red-600">Artist X Decoder (비밀):</strong> 잠재 표현을 원본 텍스트로 복원합니다.</li>
+                            <li><strong class="text-blue-600">향후 단계:</strong> 잠재 표현을 추상 PNG 이미지 안에 저장합니다.</li>
                         </ul>
                     </div>
                 </section>
@@ -116,18 +116,13 @@
                     <h3 class="text-xl font-bold text-gray-800 mb-3">🌐 핵심 활용 시나리오: 비대칭 비밀 통신</h3>
                     <ol class="list-decimal list-inside space-y-2 text-gray-700">
                         <li>키 생성 및 배포 (수신자): 비밀리에 `Artist X`(개인키)를 생성하고, 이로부터 `Artist Y`(공개키)를 만들어 외부에 배포합니다.</li>
-                        <li>메시지 암호화 (송신자): 공개된 Y 모델로 비밀 메시지를 PNG 이미지로 변환하여 수신자에게 전송합니다.</li>
-                        <li>메시지 복호화 (수신자): 자신만 가진 X 모델을 사용하여 이미지를 원본 메시지로 완벽하게 복원합니다.</li>
+                        <li>메시지 인코딩 (송신자): 공개된 Y 모델로 비밀 메시지를 잠재 표현으로 변환하여 수신자에게 전송합니다.</li>
+                        <li>메시지 디코딩 (수신자): 자신만 가진 X 모델을 사용하여 잠재 표현을 원본 메시지로 복원합니다.</li>
                     </ol>
                 </section>
                  <section>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">🔒 보안 강도: 왜 뚫을 수 없는가?</h3>
-                    <p class="text-gray-700">본 시스템의 보안은 고유한 데이터로 학습된 고차원 비볼록 공간에서 특정 최적해를 재현하는 것의 계산적 불가능성에 기반합니다.</p>
-                     <ul class="list-disc list-inside space-y-2 text-gray-700 mt-4">
-                        <li><strong>탐색 공간:</strong> 모델 파라미터의 경우의 수는 $(2^{32})^{1.1 \times 10^8}$로, 무차별 대입 공격은 절대적으로 불가능합니다.</li>
-                        <li><strong>시간 복잡도:</strong> 역공학 공격은 거대 모델을 처음부터 학습시키는 것과 동일한 시간과 비용을 요구합니다.</li>
-                        <li><strong>비볼록 최적화:</strong> 공격자가 다른 조건으로 학습 시, 원본과 정확히 동일한 해독기를 만들 확률은 통계적으로 0에 수렴합니다.</li>
-                    </ul>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">🔒 현재 단계</h3>
+                    <p class="text-gray-700">현재 구현은 공개 Encoder와 비공개 Decoder의 역할을 검증하는 프로토타입입니다. 암호학적 보안성 검증과 PNG 은닉은 다음 단계에서 다룹니다.</p>
                 </section>
             </div>
         </div>
@@ -155,8 +150,8 @@
             const closeDetailsBtn = document.getElementById('close-details-btn');
 
             const descriptions = {
-                y: "🎨 Artist Y (공개용 모드): 누구나 이 모드를 사용하여 메시지를 이미지로 암호화할 수 있습니다. 하지만 이미지를 해독하면 원본 대신 '재해석된' 텍스트가 나타납니다.",
-                x: "🔑 Artist X (개인용 모드): 오직 '마스터 키'를 가진 사람만 사용하는 모드입니다. 이 모드로 이미지를 해독해야만 숨겨진 원본 메시지를 완벽하게 복원할 수 있습니다."
+                y: "🎨 Artist Y (공개 Encoder): 누구나 메시지를 latent JSON으로 변환할 수 있습니다.",
+                x: "🔑 Artist X (비공개 Decoder): 수신자만 latent JSON에서 원본 메시지를 복원할 수 있습니다."
             };
 
             function updateMode(newMode) {
@@ -188,20 +183,20 @@
                 textOutput.textContent = '';
 
                 try {
-                    const response = await fetch(`${API_URL}/encode`, {
+                    const response = await fetch(`${API_URL}/encode-latent`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: text, mode: currentMode })
+                        body: JSON.stringify({ text: text })
                     });
                     if (!response.ok) throw new Error(`서버 오류: ${response.statusText}`);
                     const data = await response.json();
                     
-                    const imageUrl = `data:image/png;base64,${data.image}`;
-                    outputImage.src = imageUrl;
-                    outputImage.classList.remove('hidden');
-                    downloadLink.href = imageUrl;
-                    downloadLink.download = 'encoded_image.png';
+                    const blob = new Blob([JSON.stringify(data.latent)], { type: 'application/json' });
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.download = 'picasso_latent.json';
                     downloadLink.classList.remove('hidden');
+                    outputPlaceholder.textContent = `Latent 생성 완료: [${data.latent.shape.join(', ')}]`;
+                    outputPlaceholder.classList.remove('hidden');
                 } catch (error) {
                     alert(`인코딩 실패: ${error.message}`);
                     outputPlaceholder.classList.remove('hidden');
@@ -219,20 +214,17 @@
             async function handleFile(file) {
                 const reader = new FileReader();
                 reader.onload = async (e) => {
-                    const base64Image = e.target.result.split(',')[1];
-                    
-                    outputImage.src = e.target.result;
-                    outputImage.classList.remove('hidden');
                     outputPlaceholder.classList.add('hidden');
                     downloadLink.classList.add('hidden');
                     textOutput.textContent = '';
                     showLoader();
 
                     try {
-                        const response = await fetch(`${API_URL}/decode`, {
+                        const latent = JSON.parse(e.target.result);
+                        const response = await fetch(`${API_URL}/decode-latent`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ image: base64Image, mode: currentMode })
+                            body: JSON.stringify({ latent: latent })
                         });
                         if (!response.ok) throw new Error(`서버 오류: ${response.statusText}`);
                         const data = await response.json();
@@ -244,7 +236,7 @@
                         hideLoader();
                     }
                 };
-                reader.readAsDataURL(file);
+                reader.readAsText(file);
             }
             
             // Modal Logic

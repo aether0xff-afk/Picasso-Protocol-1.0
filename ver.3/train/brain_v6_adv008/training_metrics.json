@@ -1,0 +1,10 @@
+{
+  "loss": 0.0026158043950393526,
+  "token_accuracy": 0.9993902444839478,
+  "exact_match_ratio": 0.9575367958044324,
+  "training_private_loss": 0.00768425023071123,
+  "training_attacker_loss": 0.0075173125789862955,
+  "epoch": 42,
+  "seconds": 217.8,
+  "adversarial_weight": 0.08
+}

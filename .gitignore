@@ -1,1 +1,5 @@
 *.pth
+*.pt
+__pycache__/
+*.pyc
+latent_demo.json

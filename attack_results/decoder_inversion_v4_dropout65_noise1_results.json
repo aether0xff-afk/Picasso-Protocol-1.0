@@ -1,0 +1,59 @@
+{
+  "attack": "chosen_plaintext_decoder_inversion",
+  "public_model": "models\\public_v4\\artist_y_public_encoder.pt",
+  "public_noise": 1.0,
+  "public_dropout": 0.65,
+  "public_samples": 1,
+  "private_decoder_loaded": false,
+  "config": {
+    "max_bytes": 160,
+    "embedding_dim": 64,
+    "hidden_dim": 256,
+    "latent_dim": 128,
+    "layers": 2,
+    "dropout": 0.15,
+    "latent_noise": 1.0,
+    "latent_dropout": 0.75,
+    "architecture": "sequence"
+  },
+  "results": [
+    {
+      "pairs": 100,
+      "test_loss": 0.06907310429960489,
+      "token_accuracy": 0.9859847428846592,
+      "exact_match_ratio": 0.4,
+      "train_loss": 0.0022377355489879847,
+      "seconds": 0.24
+    },
+    {
+      "pairs": 500,
+      "test_loss": 0.016254029935225844,
+      "token_accuracy": 0.9972374990495982,
+      "exact_match_ratio": 0.805,
+      "train_loss": 0.0012335666397120804,
+      "seconds": 0.64
+    },
+    {
+      "pairs": 1000,
+      "test_loss": 0.0083709477330558,
+      "token_accuracy": 0.9988341739108396,
+      "exact_match_ratio": 0.9,
+      "train_loss": 0.0008166575717041269,
+      "seconds": 1.26
+    }
+  ],
+  "recoveries": [
+    {
+      "plaintext": "The secret code is apple.",
+      "surrogate_output": "The secret code is apple."
+    },
+    {
+      "plaintext": "Latent vectors should be encrypted.",
+      "surrogate_output": "Latent vectors should be encrypted."
+    },
+    {
+      "plaintext": "The painter remembers a hidden message.",
+      "surrogate_output": "The painter remembers a hidden message."
+    }
+  ]
+}

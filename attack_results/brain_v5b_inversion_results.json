@@ -1,0 +1,44 @@
+{
+  "attack": "brain_v5_chosen_plaintext_inversion",
+  "public_model": "models\\public_v5b\\artist_y_public_brain_fragment.pt",
+  "public_dropout": 0.85,
+  "public_noise": 1.0,
+  "private_fragment_loaded": false,
+  "config": {
+    "max_bytes": 160,
+    "embedding_dim": 64,
+    "hidden_dim": 256,
+    "latent_dim": 256,
+    "private_dim": 128,
+    "dropout": 0.15,
+    "latent_noise": 1.0,
+    "latent_dropout": 0.85,
+    "architecture": "brain-v5"
+  },
+  "results": [
+    {
+      "pairs": 100,
+      "test_loss": 0.13511048629879951,
+      "token_accuracy": 0.9740223534480574,
+      "exact_match_ratio": 0.17,
+      "train_loss": 0.001111261430196464,
+      "seconds": 0.46
+    },
+    {
+      "pairs": 500,
+      "test_loss": 0.03220419865101576,
+      "token_accuracy": 0.9942722457358644,
+      "exact_match_ratio": 0.6175,
+      "train_loss": 0.0009235709148924798,
+      "seconds": 1.71
+    },
+    {
+      "pairs": 1000,
+      "test_loss": 0.019161092001013458,
+      "token_accuracy": 0.9966292419596016,
+      "exact_match_ratio": 0.7525,
+      "train_loss": 0.0005253017952782102,
+      "seconds": 3.28
+    }
+  ]
+}
