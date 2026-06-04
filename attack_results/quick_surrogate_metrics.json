@@ -1,0 +1,12 @@
+{
+  "test_loss": 3.3248424530029297,
+  "token_accuracy": 0.26553341148886284,
+  "exact_match_ratio": 0.0,
+  "train_loss": 3.2251741886138916,
+  "seconds": 0.26,
+  "pairs": 10,
+  "public_model": "models\\public_v6_ultradrop\\artist_y_public_brain_fragment.pt",
+  "public_dropout": 0.93,
+  "public_noise": 1.0,
+  "private_fragment_loaded": false
+}
