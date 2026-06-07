@@ -1,9 +1,13 @@
 @echo off
 setlocal
-set "CONDA=%USERPROFILE%\miniconda3\Scripts\conda.exe"
-if not exist "%CONDA%" (
-  echo Conda executable not found: %CONDA% 1>&2
+if defined CONDA_PREFIX (
+  set "PYTHON=%CONDA_PREFIX%\python.exe"
+) else (
+  set "PYTHON=python"
+)
+if not exist "%PYTHON%" if not "%PYTHON%"=="python" (
+  echo Python executable not found: %PYTHON% 1>&2
   exit /b 1
 )
-"%CONDA%" run --no-capture-output -n picasso-gpu python "%~dp0picasso.py" %*
+"%PYTHON%" "%~dp0tools\cli\picasso.py" %*
 exit /b %ERRORLEVEL%

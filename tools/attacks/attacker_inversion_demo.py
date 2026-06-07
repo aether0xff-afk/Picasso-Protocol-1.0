@@ -4,6 +4,7 @@ import argparse
 import json
 import random
 import re
+import sys
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -12,6 +13,10 @@ import torch
 from datasets import load_dataset
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from picasso_protocol.compact_models import (
     PAD,

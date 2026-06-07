@@ -6,6 +6,10 @@ from pathlib import Path
 
 import torch
 
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from picasso_protocol.brain_models import (
     apply_brain_shield,
     load_public_brain_fragment,

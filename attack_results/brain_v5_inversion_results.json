@@ -18,27 +18,27 @@
   "results": [
     {
       "pairs": 100,
-      "test_loss": 0.09652451612055302,
-      "token_accuracy": 0.983526370479256,
-      "exact_match_ratio": 0.34,
-      "train_loss": 0.0012871598592028022,
-      "seconds": 0.32
+      "test_loss": 0.09162690490484238,
+      "token_accuracy": 0.9829688014800922,
+      "exact_match_ratio": 0.265,
+      "train_loss": 0.001109956530854106,
+      "seconds": 21.23
     },
     {
       "pairs": 500,
-      "test_loss": 0.027005341136828065,
-      "token_accuracy": 0.9959956408241883,
-      "exact_match_ratio": 0.725,
-      "train_loss": 0.0006651813455391675,
-      "seconds": 1.12
+      "test_loss": 0.024960965616628528,
+      "token_accuracy": 0.996122361051271,
+      "exact_match_ratio": 0.7325,
+      "train_loss": 0.0006960933096706867,
+      "seconds": 326.79
     },
     {
       "pairs": 1000,
-      "test_loss": 0.016543275211006403,
-      "token_accuracy": 0.9981498846845933,
-      "exact_match_ratio": 0.8625,
-      "train_loss": 0.0005084689000796061,
-      "seconds": 2.17
+      "test_loss": 0.01915078575257212,
+      "token_accuracy": 0.9976683478216793,
+      "exact_match_ratio": 0.82,
+      "train_loss": 0.00046025964547879994,
+      "seconds": 1317.29
     }
   ]
 }

@@ -174,7 +174,7 @@ V6   500쌍 공격 exact: 0.4725
 
 ```text
 artist-y-public.cmd
-artist_y_public.py
+tools/cli/artist_y_public.py
 models/public/
 models/public_v4/
 models/public_v5b/
@@ -186,7 +186,7 @@ models/public_v6_ultradrop/
 ```text
 artist-x-private.cmd
 artist-x-shielded.cmd
-artist_x_private.py
+tools/cli/artist_x_private.py
 models/private/
 models/private_v4/
 models/private_v5b/

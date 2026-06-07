@@ -1,5 +1,9 @@
 @echo off
 setlocal
-set "CONDA=%USERPROFILE%\miniconda3\Scripts\conda.exe"
-"%CONDA%" run --no-capture-output -n picasso-gpu python "%~dp0attacker_brain_v5_inversion_demo.py" %*
+if defined CONDA_PREFIX (
+  set "PYTHON=%CONDA_PREFIX%\python.exe"
+) else (
+  set "PYTHON=python"
+)
+"%PYTHON%" "%~dp0tools\attacks\attacker_brain_v5_inversion_demo.py" %*
 exit /b %ERRORLEVEL%
